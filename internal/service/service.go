@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/Kokkibegushidoktor/test1/internal/models"
 	"github.com/Kokkibegushidoktor/test1/internal/repository"
 	"time"
 )
@@ -18,7 +19,7 @@ type FetchTickerInput struct {
 
 type Tickers interface {
 	Create(ctx context.Context, input CreateTickerInput) error
-	Fetch(ctx context.Context, input FetchTickerInput) error
+	Fetch(ctx context.Context, input FetchTickerInput) (models.FetchResponse, error)
 }
 
 type Services struct {

@@ -1,14 +1,13 @@
 package utils
 
 import (
+	"github.com/Kokkibegushidoktor/test1/internal/tech/closer"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/rs/zerolog/log"
-
-	"github.com/Kokkibegushidoktor/task-dispenser-service/internal/tech/closer"
 )
 
 const gracefulShutdownWaitTime = 2 * time.Second
