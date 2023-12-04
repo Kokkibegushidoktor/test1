@@ -3,8 +3,10 @@ package repository
 import (
 	"context"
 	"github.com/Kokkibegushidoktor/test1/internal/models"
+	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
 )
 
@@ -14,6 +16,15 @@ type TickerRepo struct {
 }
 
 func NewTickerRepo(db *mongo.Database) *TickerRepo {
+	tickerIndex := mongo.IndexModel{
+		Keys:    bson.D{{Key: "symbol", Value: 1}},
+		Options: options.Index().SetUnique(true),
+	}
+	_, err := db.Collection("tickers").Indexes().CreateOne(context.Background(), tickerIndex)
+	if err != nil {
+		log.Fatal().Msgf("error creating ticker collection index, err: %v", err)
+	}
+
 	return &TickerRepo{
 		tickerCollection: db.Collection("tickers"),
 		ratesCollection:  db.Collection("rates"),
@@ -21,6 +32,9 @@ func NewTickerRepo(db *mongo.Database) *TickerRepo {
 }
 func (r *TickerRepo) Create(ctx context.Context, ticker *models.Ticker) error {
 	_, err := r.tickerCollection.InsertOne(ctx, ticker)
+	if mongo.IsDuplicateKeyError(err) {
+		return models.ErrTickerAlreadyExists
+	}
 
 	return err
 }
