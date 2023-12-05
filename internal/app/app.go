@@ -25,7 +25,7 @@ func Run(ctx context.Context, cfg *config.Config) error {
 
 	handler := handlers.New(services)
 
-	httpServer := http.New(cfg, handler)
+	httpServer := http.New(handler)
 	httpServer.Start()
 
 	utils.GracefulShutdown()

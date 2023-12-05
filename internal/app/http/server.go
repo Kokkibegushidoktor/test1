@@ -3,9 +3,9 @@ package http
 import (
 	"errors"
 	"github.com/Kokkibegushidoktor/test1/internal/app/http/handlers"
-	"github.com/Kokkibegushidoktor/test1/internal/config"
 	"github.com/Kokkibegushidoktor/test1/internal/tech/closer"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/rs/zerolog/log"
 	"net/http"
 )
@@ -15,8 +15,9 @@ type Server struct {
 	handler *handlers.Handler
 }
 
-func New(cfg *config.Config, handler *handlers.Handler) *Server {
+func New(handler *handlers.Handler) *Server {
 	server := fiber.New()
+	server.Use(recover.New())
 
 	return &Server{
 		server:  server,
