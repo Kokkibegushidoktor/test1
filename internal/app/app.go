@@ -21,6 +21,8 @@ func Run(ctx context.Context, cfg *config.Config) error {
 		Repos: repos,
 	})
 
+	services.Tickers.InitUpdateWorker(ctx)
+
 	handler := handlers.New(services)
 
 	httpServer := http.New(cfg, handler)

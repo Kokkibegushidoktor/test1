@@ -11,7 +11,7 @@ type Ticker struct {
 }
 
 type Rate struct {
-	SymbolID  primitive.ObjectID `bson:"symbolID"`
-	Timestamp time.Time          `bson:"timestamp"`
-	Price     float32            `bson:"price"`
+	Symbol string    `json:"symbol" bson:"symbol"`
+	Time   time.Time `bson:"time"`
+	Price  string    `json:"price" bson:"price"`
 }

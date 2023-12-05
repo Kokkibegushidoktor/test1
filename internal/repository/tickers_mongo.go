@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/Kokkibegushidoktor/test1/internal/models"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
@@ -45,6 +46,17 @@ func (r *TickerRepo) AddRate(ctx context.Context, rate *models.Rate) error {
 	return err
 }
 
+func (r *TickerRepo) AddRates(ctx context.Context, rates []*models.Rate) error {
+	b := make([]interface{}, len(rates))
+	for i := range rates {
+		b[i] = rates[i]
+	}
+
+	_, err := r.ratesCollection.InsertMany(ctx, b)
+
+	return err
+}
+
 func (r *TickerRepo) GetBySymbol(ctx context.Context, symbol string) (*models.Ticker, error) {
 	var ticker models.Ticker
 	if err := r.tickerCollection.FindOne(ctx, bson.M{"symbol": symbol}).Decode(&ticker); err != nil {
@@ -57,13 +69,17 @@ func (r *TickerRepo) GetBySymbol(ctx context.Context, symbol string) (*models.Ti
 func (r *TickerRepo) FetchFromTo(ctx context.Context, symbol string, from, to time.Time) ([]models.Rate, error) {
 	query := bson.M{
 		"$and": bson.A{
-			bson.M{"timestamp": bson.M{"$gte": from}},
-			bson.M{"timestamp": bson.M{"$lte": to}},
+			bson.M{"time": bson.M{"$gte": from}},
+			bson.M{"time": bson.M{"$lte": to}},
+			bson.M{"symbol": symbol},
 		},
 	}
 
 	cur, err := r.ratesCollection.Find(ctx, query)
 	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, models.ErrRatesNotFound
+		}
 		return nil, err
 	}
 
@@ -73,4 +89,21 @@ func (r *TickerRepo) FetchFromTo(ctx context.Context, symbol string, from, to ti
 	}
 
 	return rates, nil
+}
+
+func (r *TickerRepo) GetAllTickers(ctx context.Context) ([]models.Ticker, error) {
+	cur, err := r.tickerCollection.Find(ctx, bson.M{})
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, models.ErrTickerNotFound
+		}
+		return nil, err
+	}
+
+	var tickers []models.Ticker
+	if err = cur.All(ctx, &tickers); err != nil {
+		return nil, err
+	}
+
+	return tickers, nil
 }

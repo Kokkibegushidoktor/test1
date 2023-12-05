@@ -10,8 +10,10 @@ import (
 type Tickers interface {
 	Create(ctx context.Context, ticker *models.Ticker) error
 	AddRate(ctx context.Context, rate *models.Rate) error
+	AddRates(ctx context.Context, rates []*models.Rate) error
 	GetBySymbol(ctx context.Context, symbol string) (*models.Ticker, error)
 	FetchFromTo(ctx context.Context, symbol string, from, to time.Time) ([]models.Rate, error)
+	GetAllTickers(ctx context.Context) ([]models.Ticker, error)
 }
 
 type Repositories struct {

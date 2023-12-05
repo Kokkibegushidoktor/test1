@@ -20,6 +20,7 @@ type FetchTickerInput struct {
 type Tickers interface {
 	Create(ctx context.Context, input CreateTickerInput) error
 	Fetch(ctx context.Context, input FetchTickerInput) (models.FetchResponse, error)
+	InitUpdateWorker(ctx context.Context)
 }
 
 type Services struct {
